@@ -26,11 +26,7 @@ public final class AntiSleep {
 
         ServerLifecycleEvents.SERVER_STARTED.register(AntiSleep::onServerStarted);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> unfreeze(server));
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-            if (server.getPlayerList().getPlayers().isEmpty()) {
-                freeze(server);
-            }
-        });
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> scheduleFreezeCheck(server));
 
         MCServerHostAdBlock.LOGGER.info(
                 "AntiSleep enabled: freeze server ticks when no players are online.");
@@ -40,6 +36,16 @@ public final class AntiSleep {
         if (server.getPlayerList().getPlayers().isEmpty()) {
             freeze(server);
         }
+    }
+
+    private static void scheduleFreezeCheck(MinecraftServer server) {
+        // DISCONNECT can fire before the player is removed from the player list.
+        // Run the check on the server executor so the removal has completed first.
+        server.execute(() -> {
+            if (server.getPlayerList().getPlayers().isEmpty()) {
+                freeze(server);
+            }
+        });
     }
 
     private static void freeze(MinecraftServer server) {
