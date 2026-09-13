@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "hmmadsblock",
+  "version": "${version}",
+  "name": "HmmAdBlock",
+  "description": "Blocks the known MCServerHost promotional tellraw command.",
+  "authors": ["Lê Sỹ Hiếu"],
+  "environment": "server",
+  "entrypoints": {
+    "main": ["com.lesyhieu.mcshadblock.MCServerHostAdBlock"]
+  },
+  "mixins": ["hmmadsblock.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "26.2",
+    "fabric-api": "*"
+  }
+}
