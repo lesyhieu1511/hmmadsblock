@@ -39,10 +39,15 @@ public final class AntiSleep {
     }
 
     private static void scheduleFreezeCheck(MinecraftServer server) {
-        // DISCONNECT can fire before the player is removed from the player list.
-        // Run the check on the server executor so the removal has completed first.
+        // Wait until the disconnect has been fully processed, then check the
+        // actual player list. If it is empty, execute the same vanilla command
+        // used by an operator: /tick freeze.
         server.execute(() -> {
-            if (server.getPlayerList().getPlayers().isEmpty()) {
+            int players = server.getPlayerList().getPlayers().size();
+            MCServerHostAdBlock.LOGGER.info(
+                    "AntiSleep: player disconnect processed, players online: {}", players);
+
+            if (players == 0) {
                 freeze(server);
             }
         });
@@ -50,17 +55,19 @@ public final class AntiSleep {
 
     private static void freeze(MinecraftServer server) {
         if (!server.tickRateManager().isFrozen()) {
-            server.tickRateManager().setFrozen(true);
+            server.getCommands().performPrefixedCommand(
+                    server.createCommandSourceStack(), "tick freeze");
             MCServerHostAdBlock.LOGGER.info(
-                    "AntiSleep: no players online, server ticks frozen.");
+                    "AntiSleep: no players online, executed /tick freeze.");
         }
     }
 
     private static void unfreeze(MinecraftServer server) {
         if (server.tickRateManager().isFrozen()) {
-            server.tickRateManager().setFrozen(false);
+            server.getCommands().performPrefixedCommand(
+                    server.createCommandSourceStack(), "tick unfreeze");
             MCServerHostAdBlock.LOGGER.info(
-                    "AntiSleep: player joined, server ticks unfrozen.");
+                    "AntiSleep: player joined, executed /tick unfreeze.");
         }
     }
 }
