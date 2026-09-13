@@ -1,5 +1,6 @@
 package com.lesyhieu.mcshadblock;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -42,8 +43,6 @@ public final class AntiSleep {
     }
 
     private static void scheduleFreezeCheck(MinecraftServer server) {
-        // Give the disconnect process time to finish and allow a reconnect to
-        // cancel the freeze naturally before checking the final player count.
         MCServerHostAdBlock.LOGGER.info(
                 "AntiSleep: scheduling 3-second empty-server check.");
 
