@@ -22,8 +22,21 @@ jobs:
         with:
           gradle-version: '9.5.1'
 
+      - name: Configure Fabric Maven
+        run: |
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories {
+                  maven { url = 'https://maven.fabricmc.net/' }
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          rootProject.name = 'hmmadsblock'
+          EOF
+
       - name: Build
-        run: gradle build --no-daemon
+        run: gradle build --no-daemon --stacktrace
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
