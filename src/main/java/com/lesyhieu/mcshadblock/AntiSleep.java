@@ -6,8 +6,7 @@ import net.minecraft.server.MinecraftServer;
 
 /**
  * Freezes the vanilla server tick loop while nobody is online and unfreezes it
- * as soon as a player joins. This is equivalent to using /tick freeze and
- * /tick unfreeze, but is handled directly through the server tick manager.
+ * as soon as a player joins.
  */
 public final class AntiSleep {
     private static boolean enabled;
@@ -44,16 +43,16 @@ public final class AntiSleep {
     }
 
     private static void freeze(MinecraftServer server) {
-        if (!server.tickManager().isFrozen()) {
-            server.tickManager().setFrozen(true);
+        if (!server.tickRateManager().isFrozen()) {
+            server.tickRateManager().setFrozen(true);
             MCServerHostAdBlock.LOGGER.info(
                     "AntiSleep: no players online, server ticks frozen.");
         }
     }
 
     private static void unfreeze(MinecraftServer server) {
-        if (server.tickManager().isFrozen()) {
-            server.tickManager().setFrozen(false);
+        if (server.tickRateManager().isFrozen()) {
+            server.tickRateManager().setFrozen(false);
             MCServerHostAdBlock.LOGGER.info(
                     "AntiSleep: player joined, server ticks unfrozen.");
         }
