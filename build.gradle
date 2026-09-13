@@ -29,4 +29,5 @@ tasks.withType(JavaCompile).configureEach {
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
 }
