@@ -1,5 +1,7 @@
 package com.lesyhieu.mcshadblock;
 
+import java.util.concurrent.TimeUnit;
+
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.MinecraftServer;
@@ -9,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
  * as soon as a player joins.
  */
 public final class AntiSleep {
+    private static final long FREEZE_DELAY_SECONDS = 3;
     private static boolean enabled;
 
     private AntiSleep() {
@@ -39,18 +42,21 @@ public final class AntiSleep {
     }
 
     private static void scheduleFreezeCheck(MinecraftServer server) {
-        // Wait until the disconnect has been fully processed, then check the
-        // actual player list. If it is empty, execute the same vanilla command
-        // used by an operator: /tick freeze.
-        server.execute(() -> {
-            int players = server.getPlayerList().getPlayers().size();
-            MCServerHostAdBlock.LOGGER.info(
-                    "AntiSleep: player disconnect processed, players online: {}", players);
+        // Give the disconnect process time to finish and allow a reconnect to
+        // cancel the freeze naturally before checking the final player count.
+        MCServerHostAdBlock.LOGGER.info(
+                "AntiSleep: scheduling 3-second empty-server check.");
 
-            if (players == 0) {
-                freeze(server);
-            }
-        });
+        CompletableFuture.delayedExecutor(FREEZE_DELAY_SECONDS, TimeUnit.SECONDS).execute(() ->
+                server.execute(() -> {
+                    int players = server.getPlayerList().getPlayers().size();
+                    MCServerHostAdBlock.LOGGER.info(
+                            "AntiSleep: delayed disconnect check, players online: {}", players);
+
+                    if (players == 0) {
+                        freeze(server);
+                    }
+                }));
     }
 
     private static void freeze(MinecraftServer server) {
