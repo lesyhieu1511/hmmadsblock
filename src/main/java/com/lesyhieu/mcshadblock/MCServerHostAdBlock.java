@@ -11,5 +11,6 @@ public class MCServerHostAdBlock implements ModInitializer {
     @Override
     public void onInitialize() {
         LOGGER.info("HmmAdBlock initialized.");
+        AntiSleep.register();
     }
 }
